@@ -1,0 +1,98 @@
+#!/bin/bash
+
+set -euo pipefail
+
+RED='\e[31m'
+YELLOW='\e[33m'
+GREEN='\e[32m'
+BLUE='\e[34m'
+NC='\e[0m'
+
+echo -e "\n${BLUE}1. Retrieving OS info${NC}"
+echo -e "${GREEN}$ cat /etc/os-release${NC}"
+cat /etc/os-release
+echo -e "\n${GREEN}$ cat /etc/lsb-release${NC}"
+cat /etc/lsb-release
+
+echo -e "\n${BLUE}2. Updating system${NC}"
+sudo apt update
+sudo apt upgrade -y
+
+echo -e "\n${BLUE}3. Installing common packages${NC}"
+sudo apt install -y \
+    curl \
+    wget \
+    unzip \
+    zip \
+    git \
+    jq \
+    tree \
+    make \
+    software-properties-common \
+    apt-transport-https \
+    ca-certificates \
+    gnupg \
+    lsb-release \
+    python3 \
+    python3-pip \
+    python3-venv \
+    openssh-client
+
+
+echo -e "\n${BLUE}4. Installing Azure CLI${NC}"
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+
+echo -e "\n${BLUE}5. Installing Terraform${NC}"
+
+wget -O- https://apt.releases.hashicorp.com/gpg \
+| gpg --dearmor \
+| sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg >/dev/null
+
+echo \
+"deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
+https://apt.releases.hashicorp.com \
+$(lsb_release -cs) main" \
+| sudo tee /etc/apt/sources.list.d/hashicorp.list
+
+sudo apt update
+
+sudo apt install terraform -y
+
+
+
+echo -e "\n${BLUE}6. Installing Ansible${NC}"
+sudo apt install ansible -y
+
+echo -e "\n${BLUE}7. Installing terraform-docs${NC}"
+
+TERRAFORM_DOCS_VERSION="0.21.0"
+
+curl -Lo terraform-docs.tar.gz \
+https://github.com/terraform-docs/terraform-docs/releases/download/v${TERRAFORM_DOCS_VERSION}/terraform-docs-v${TERRAFORM_DOCS_VERSION}-linux-amd64.tar.gz
+
+tar -xzf terraform-docs.tar.gz
+
+sudo mv terraform-docs /usr/local/bin/
+
+rm terraform-docs.tar.gz
+
+echo
+echo -e "${YELLOW}==========================================="
+echo -e "Installed versions"
+echo -e "===========================================${NC}"
+
+echo -e "\n${GREEN}$ git --version${NC}"
+git --version
+
+echo -e "\n${GREEN}$ terraform version${NC}"
+terraform version
+
+echo -e "\n${GREEN}$ az version${NC}"
+az version | head
+
+echo -e "\n${GREEN}$ ansible --version${NC}"
+ansible --version | head -n 1
+
+echo -e "\n${GREEN}$ terraform-docs --version${NC}"
+terraform-docs --version
