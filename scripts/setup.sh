@@ -13,6 +13,16 @@ echo -e "${GREEN}$ cat /etc/os-release${NC}"
 cat /etc/os-release
 echo -e "\n${GREEN}$ cat /etc/lsb-release${NC}"
 cat /etc/lsb-release
+echo -e "\n${GREEN}$ cat /proc/version${NC}"
+cat /proc/version
+
+# TIP:
+# If you're running inside WSL, 'az login' may fail to open the default Windows browser
+# and show a 'gio: Operation not supported' error.
+# Install 'wslu' and set the BROWSER environment variable to 'wslview':
+#
+#   sudo apt install wslu
+#   export BROWSER=wslview
 
 echo -e "\n${BLUE}2. Updating system${NC}"
 sudo apt update
