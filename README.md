@@ -1,15 +1,68 @@
 # azure-infrastructure-lab
 
-1. Execute "$ bash setup.sh"
+## Deployment
 
-2. Create AZ account
+1. Run the setup script (utilities, az-cli, terraform, ansible).
 
-3. ... 
-Crear la cuenta gratuita de Azure.
-Iniciar sesión con az login.
-Verificar el acceso con az account show.
-Instalar Terraform.
-Crear el repositorio en GitHub.
-Escribir el primer providers.tf.
-Ejecutar terraform init.
-Crear un Resource Group con Terraform.
+   ```bash
+   bash ./scripts/setup.sh
+   ```
+
+2. Create an Azure Free Account.
+
+3. Sign in to Azure.
+
+   ```bash
+   az login
+   ```
+
+4. Verify that the correct subscription is selected.
+
+   ```bash
+   az account show
+   ```
+
+5. Change to the Terraform directory.
+
+   ```bash
+   cd ./terraform
+   ```
+
+6. Generate an SSH key pair.
+
+    ```bash
+   ssh-keygen -t ed25519 -C "elmoix@azure-lab"
+   ```
+
+7. Initialize the Terraform working directory.
+
+   ```bash
+   terraform init
+   ```
+
+8. Review the execution plan (RG, VNet, Subnet, NSG, Public IP, NIC and VM).
+
+   ```bash
+   terraform plan
+   ```
+
+9. Deploy the infrastructure.
+
+   ```bash
+   terraform apply
+   ```
+
+10. Confirm that the Resource Group has been created.
+
+   ```bash
+   az group list -o table
+   ```
+
+## Destroy the infrastructure
+
+To avoid unnecessary charges, destroy all deployed resources when you finish.
+
+```bash
+terraform destroy
+```
+

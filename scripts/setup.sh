@@ -40,42 +40,49 @@ sudo apt install -y \
 
 
 echo -e "\n${BLUE}4. Installing Azure CLI${NC}"
-curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-
+if command -v az >/dev/null 2>&1; then
+    echo -e "${GREEN}Azure CLI is already installed, not installing it again.${NC}"
+else
+    curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+fi
 
 echo -e "\n${BLUE}5. Installing Terraform${NC}"
+if command -v terraform >/dev/null 2>&1; then
+    echo -e "${GREEN}Terraform is already installed, not installing it again.${NC}"
+else
+    wget -O- https://apt.releases.hashicorp.com/gpg \ | gpg --dearmor \ | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg >/dev/null
+    echo \
+    "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
+    https://apt.releases.hashicorp.com \
+    $(lsb_release -cs) main" \
+    | sudo tee /etc/apt/sources.list.d/hashicorp.list
 
-wget -O- https://apt.releases.hashicorp.com/gpg \
-| gpg --dearmor \
-| sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg >/dev/null
-
-echo \
-"deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
-https://apt.releases.hashicorp.com \
-$(lsb_release -cs) main" \
-| sudo tee /etc/apt/sources.list.d/hashicorp.list
-
-sudo apt update
-
-sudo apt install terraform -y
-
-
+    sudo apt update
+    sudo apt install -y terraform
+fi
 
 echo -e "\n${BLUE}6. Installing Ansible${NC}"
-sudo apt install ansible -y
+if command -v ansible >/dev/null 2>&1; then
+    echo -e "${GREEN}Ansible is already installed, not installing it again.${NC}"
+else
+    sudo apt install -y ansible
+fi
 
 echo -e "\n${BLUE}7. Installing terraform-docs${NC}"
+if command -v terraform-docs >/dev/null 2>&1; then
+    echo -e "${GREEN}terraform-docs is already installed, not installing it again.${NC}"
+else
+    TERRAFORM_DOCS_VERSION="0.21.0"
 
-TERRAFORM_DOCS_VERSION="0.21.0"
+    curl -Lo terraform-docs.tar.gz \
+    https://github.com/terraform-docs/terraform-docs/releases/download/v${TERRAFORM_DOCS_VERSION}/terraform-docs-v${TERRAFORM_DOCS_VERSION}-linux-amd64.tar.gz
 
-curl -Lo terraform-docs.tar.gz \
-https://github.com/terraform-docs/terraform-docs/releases/download/v${TERRAFORM_DOCS_VERSION}/terraform-docs-v${TERRAFORM_DOCS_VERSION}-linux-amd64.tar.gz
+    tar -xzf terraform-docs.tar.gz
 
-tar -xzf terraform-docs.tar.gz
+    sudo mv terraform-docs /usr/local/bin/
 
-sudo mv terraform-docs /usr/local/bin/
-
-rm terraform-docs.tar.gz
+    rm terraform-docs.tar.gz
+fi
 
 echo
 echo -e "${YELLOW}==========================================="
