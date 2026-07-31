@@ -7,6 +7,11 @@ docker-workflow
 configuration-as-code
 blueocean
 credentials-binding
+azure-credentials
 ssh-agent
 ansicolor
-azure-credentials
+azure-sdk
+credentials
+plain-credentials
+structs
+jackson2-api

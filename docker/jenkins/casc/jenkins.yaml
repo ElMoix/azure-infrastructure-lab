@@ -31,10 +31,11 @@ credentials:
               password: ${GITHUB_TOKEN}
               scope: GLOBAL
 
-          - azureServicePrincipal:
+          - azure:
               id: azure-service-principal
               description: Azure Service Principal for Terraform Lab
               clientId: ${AZURE_CLIENT_ID}
               clientSecret: ${AZURE_CLIENT_SECRET}
-              tenantId: ${AZURE_TENANT_ID}
+              tenant: ${AZURE_TENANT_ID}
               subscriptionId: ${AZURE_SUBSCRIPTION_ID}
+              scope: GLOBAL
