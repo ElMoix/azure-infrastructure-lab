@@ -17,7 +17,8 @@ pipeline {
             steps {
                 git(
                     url: 'https://github.com/ElMoix/azure-infrastructure-lab.git',
-                    credentialsId: 'github-token'
+                    branch: 'develop',
+		    credentialsId: 'github-token'
                 )
             }
         }
