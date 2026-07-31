@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#
+# 'Ubuntu 22.04.5 LTS'
+#
 set -euo pipefail
 
 RED='\e[31m'

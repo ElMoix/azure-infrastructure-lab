@@ -1,0 +1,21 @@
+jenkins:
+  systemMessage: "Azure Infrastructure Lab Jenkins"
+
+  numExecutors: 2
+
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: admin
+          password: admin
+
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+
+unclassified:
+
+  location:
+    url: http://localhost:8080/
