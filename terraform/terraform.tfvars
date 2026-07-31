@@ -1,11 +1,8 @@
-project_name   = "elmoix"
-location       = "francecentral"
-admin_username = "elmoix"
-vm_size        = "Standard_B1ms"
-vnet_address_space = [
-  "10.0.0.0/16"
-]
+project_name = "elmoix"
+subscription_id     = "4a16cab3-f9ab-4ad8-a54d-f4b285619fd2"
+location            = "France Central"
 
-subnet_address_prefixes = [
-  "10.0.1.0/24"
-]
+sql_server_name    = "azurelab-elmoix"
+sql_database_name  = "azurelabdb"
+sql_admin_login    = "azureadmin"
+sql_admin_password = "$uper$ecurePass@98"
