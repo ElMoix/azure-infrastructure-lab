@@ -81,7 +81,43 @@ else
     sudo apt install -y ansible
 fi
 
-echo -e "\n${BLUE}7. Installing terraform-docs${NC}"
+echo -e "\n${BLUE}7. Installing Docker${NC}"
+
+if command -v docker >/dev/null 2>&1; then
+    echo -e "${GREEN}Docker is already installed, not installing it again.${NC}"
+else
+    sudo install -m 0755 -d /etc/apt/keyrings
+
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+    | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+    sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+    echo \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+    https://download.docker.com/linux/ubuntu \
+    $(. /etc/os-release && echo $VERSION_CODENAME) stable" \
+    | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+    sudo apt update
+
+    sudo apt install -y \
+        docker-ce \
+        docker-ce-cli \
+        containerd.io \
+        docker-buildx-plugin \
+        docker-compose-plugin
+
+    if groups "$USER" | grep -q docker; then
+        echo -e "${GREEN}User already belongs to docker group.${NC}"
+    else
+        sudo usermod -aG docker "$USER"
+        echo -e "${YELLOW}Docker group added. Logout/login required.${NC}"
+    fi
+fi
+
+
+echo -e "\n${BLUE}8. Installing terraform-docs${NC}"
 if command -v terraform-docs >/dev/null 2>&1; then
     echo -e "${GREEN}terraform-docs is already installed, not installing it again.${NC}"
 else
@@ -116,3 +152,9 @@ ansible --version | head -n 1
 
 echo -e "\n${GREEN}$ terraform-docs --version${NC}"
 terraform-docs --version
+
+echo -e "\n${GREEN}$ docker --version${NC}"
+docker --version
+
+echo -e "\n${GREEN}$ docker compose version${NC}"
+docker compose version
