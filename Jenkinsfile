@@ -8,7 +8,16 @@ pipeline {
     }
 
     parameters {
-        choice(
+	choice(
+    	name: 'ACTION',
+    	choices: [
+        	'deploy',
+        	'destroy'
+    	],
+    	description: 'Terraform action'
+	)
+        
+	choice(
             name: 'TERRAFORM_ENV',
             choices: [
                 'dev',
@@ -16,11 +25,13 @@ pipeline {
             ],
             description: 'Terraform environment to deploy'
         )
+
         booleanParam(
             name: 'DEPLOY_VM',
             defaultValue: false,
             description: 'Deploy Azure Virtual Machine'
         )
+
         booleanParam(
             name: 'DEPLOY_SQL',
             defaultValue: false,
@@ -75,6 +86,10 @@ pipeline {
             steps {
                 dir("${TERRAFORM_PATH}") {
                     sh '''
+			echo "========== Terraform Format =========="
+                	terraform fmt -check -recursive
+
+			echo
                         echo "========== Terraform Validate =========="
                         terraform validate
 
@@ -85,10 +100,7 @@ pipeline {
 
                         echo
                         echo "========== Checkov =========="
-                        checkov \
-                            -d . \
-                            --framework terraform \
-                            --soft-fail
+                        checkov -d . --framework terraform --soft-fail
                     '''
                 }
             }
@@ -107,10 +119,17 @@ pipeline {
                             tenantIdVariable: 'ARM_TENANT_ID'
                         )
                     ]) {
-
-                        sh '''
-                            terraform plan -out=tfplan
-                        '''
+			script {
+                            if (params.ACTION == "deploy") {
+                                sh '''
+				  terraform plan -out=tfplan
+				'''
+                            } else {
+                                sh '''
+				  terraform plan -destroy -out=tfplan
+				'''
+                            }
+                        }
                     }
                 }
             }
@@ -120,8 +139,8 @@ pipeline {
         stage('Terraform Approval') {
             steps {
                 input(
-                    message: '¿Quieres aplicar los cambios de Terraform?',
-                    ok: 'Execute Apply'
+                    message: "Approve Terraform ${params.ACTION}?",
+                    ok: 'Continue'
                 )
             }
         }
