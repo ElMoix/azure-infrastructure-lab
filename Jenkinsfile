@@ -55,6 +55,14 @@ pipeline {
         }
 
 
+	stage('Checkov') {
+    	    steps {
+        	dir("${TERRAFORM_PATH}") {
+            	    sh 'checkov -d .'
+        	}
+    	    }
+	}
+
         stage('Terraform Plan') {
             steps {
                 dir("${TERRAFORM_PATH}") {
