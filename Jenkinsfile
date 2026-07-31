@@ -1,6 +1,7 @@
 pipeline {
 
     agent any
+
     options {
         ansiColor('xterm')
         timestamps()
@@ -20,45 +21,14 @@ pipeline {
                     url: 'https://github.com/ElMoix/azure-infrastructure-lab.git',
                     credentialsId: 'github-token'
                 )
-
             }
         }
-
-
-        stage('Terraform Version') {
-            steps {
-
-                sh '''
-                    terraform version
-                    az version
-                '''
-
-            }
-        }
-
 
         stage('Terraform Init') {
             steps {
                 dir("${TERRAFORM_PATH}") {
-
-                    withCredentials([
-                        azureServicePrincipal(
-                            credentialsId: 'azure-service-principal',
-                            subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID',
-                            clientIdVariable: 'ARM_CLIENT_ID',
-                            clientSecretVariable: 'ARM_CLIENT_SECRET',
-                            tenantIdVariable: 'ARM_TENANT_ID'
-                        )
-                    ]) {
-
-                        sh '''
-                            terraform init
-                        '''
-
-                    }
-
+                    sh 'terraform init'
                 }
-
             }
         }
 
@@ -66,63 +36,53 @@ pipeline {
         stage('Terraform Validate') {
             steps {
                 dir("${TERRAFORM_PATH}") {
-
-                    sh '''
-                        terraform validate
-                    '''
-
+                    sh 'terraform validate'
                 }
-
             }
         }
 
 
         stage('Terraform Plan') {
-
             steps {
-
                 dir("${TERRAFORM_PATH}") {
 
                     withCredentials([
-                        azureServicePrincipal(
-                            credentialsId: 'azure-service-principal',
-                            subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID',
-                            clientIdVariable: 'ARM_CLIENT_ID',
-                            clientSecretVariable: 'ARM_CLIENT_SECRET',
-                            tenantIdVariable: 'ARM_TENANT_ID'
-                        )
+                        azureServicePrincipal('azure-service-principal')
                     ]) {
 
                         sh '''
-                            terraform plan \
-                              -out=tfplan
+                            terraform plan -out=tfplan
                         '''
-
                     }
-
                 }
-
             }
         }
 
 
+        stage('Terraform Approval') {
+            steps {
+                input(
+                    message: '¿Quieres aplicar los cambios de Terraform?',
+                    ok: 'Ejecutar terraform apply'
+                )
+            }
+        }
+
+
+        stage('Terraform Apply') {
+            steps {
+                dir("${TERRAFORM_PATH}") {
+
+                    withCredentials([
+                        azureServicePrincipal('azure-service-principal')
+                    ]) {
+
+                        sh '''
+                            terraform apply tfplan
+                        '''
+                    }
+                }
+            }
+        }
     }
-
-
-    post {
-        success {
-            echo "Terraform deployment completed successfully"
-        }
-
-        failure {
-            echo "Terraform deployment failed"
-        }
-
-
-        always {
-            cleanWs()
-        }
-
-    }
-
 }
