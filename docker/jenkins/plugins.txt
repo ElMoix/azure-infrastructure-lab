@@ -9,3 +9,4 @@ blueocean
 credentials-binding
 ssh-agent
 ansicolor
+azure-credentials
