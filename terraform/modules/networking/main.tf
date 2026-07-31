@@ -1,5 +1,5 @@
 resource "azurerm_virtual_network" "this" {
-  name = "${var.project_name}-vnet"
+  name                = "${var.project_name}-vnet"
   location            = var.location
   resource_group_name = var.resource_group_name
 
@@ -9,7 +9,7 @@ resource "azurerm_virtual_network" "this" {
 }
 
 resource "azurerm_subnet" "this" {
-  name = "${var.project_name}-subnet"  
+  name                 = "${var.project_name}-subnet"
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.this.name
 
@@ -19,7 +19,7 @@ resource "azurerm_subnet" "this" {
 }
 
 resource "azurerm_network_security_group" "this" {
-  name = "${var.project_name}-nsg"  
+  name                = "${var.project_name}-nsg"
   location            = var.location
   resource_group_name = var.resource_group_name
 }

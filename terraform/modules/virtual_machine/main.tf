@@ -1,5 +1,5 @@
 resource "azurerm_public_ip" "this" {
-  name = "${var.project_name}-pip" 
+  name                = "${var.project_name}-pip"
   location            = var.location
   resource_group_name = var.resource_group_name
 
@@ -8,7 +8,7 @@ resource "azurerm_public_ip" "this" {
 }
 
 resource "azurerm_network_interface" "this" {
-  name = "${var.project_name}-nic"  
+  name                = "${var.project_name}-nic"
   location            = var.location
   resource_group_name = var.resource_group_name
 
@@ -24,8 +24,8 @@ resource "azurerm_network_interface" "this" {
 }
 
 resource "azurerm_linux_virtual_machine" "this" {
-  name = "${var.project_name}-vm"
-  location = var.location
+  name                = "${var.project_name}-vm"
+  location            = var.location
   resource_group_name = var.resource_group_name
 
   size = var.vm_size
