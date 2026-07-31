@@ -68,6 +68,11 @@ ln -sf /opt/checkov-venv/bin/checkov /usr/local/bin/checkov
 chmod +x /usr/local/bin/checkov
 
 
+echo "Installing TFLint..."
+curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+mv tflint /usr/local/bin/
+
+
 echo
 echo "======================================"
 echo "Installed versions"
@@ -79,7 +84,7 @@ az version | head
 ansible --version | head -n 1
 terraform-docs --version
 checkov --version
-
+tflint --version
 
 apt-get clean
 rm -rf /var/lib/apt/lists/*

@@ -71,27 +71,28 @@ pipeline {
             }
         }
 
-        stage('Terraform Validate') {
+        stage('QA') {
             steps {
                 dir("${TERRAFORM_PATH}") {
-                    sh 'terraform validate'
+                    sh '''
+                        echo "========== Terraform Validate =========="
+                        terraform validate
+
+                        echo
+                        echo "========== TFLint =========="
+                        tflint --init
+                        tflint
+
+                        echo
+                        echo "========== Checkov =========="
+                        checkov \
+                            -d . \
+                            --framework terraform \
+                            --soft-fail
+                    '''
                 }
             }
         }
-
-
-	stage('Checkov') {
-    	    steps {
-        	dir("${TERRAFORM_PATH}") {
-            	    sh '''
-                      checkov \
-                      -d . \
-                      --framework terraform \
-                      --soft-fail
-            	    '''
-        	}
-    	    }
-	}
 
         stage('Terraform Plan') {
             steps {
