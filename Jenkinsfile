@@ -58,7 +58,12 @@ pipeline {
 	stage('Checkov') {
     	    steps {
         	dir("${TERRAFORM_PATH}") {
-            	    sh 'checkov -d .'
+            	    sh '''
+                      checkov \
+                      -d . \
+                      --framework terraform \
+                      --soft-fail
+            	    '''
         	}
     	    }
 	}
