@@ -1,18 +1,14 @@
 # Setup
 
-## Jenkins Setup with Docker
+## 1. Install required tools
 
-### 1. Clone the repository
+Run the setup script:
 
 ```bash
-git clone https://github.com/ElMoix/azure-infrastructure-lab.git
+chmod +x scripts/setup.sh
 
-cd azure-infrastructure-lab
+./scripts/setup.sh
 ```
-
----
-
-# Setup
 
 ## Prerequisites
 
