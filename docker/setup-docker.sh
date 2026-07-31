@@ -56,6 +56,18 @@ mv terraform-docs /usr/local/bin/
 
 rm terraform-docs.tar.gz
 
+
+echo "Installing Checkov"
+python3 -m venv /opt/checkov-venv
+
+/opt/checkov-venv/bin/pip install --upgrade pip
+/opt/checkov-venv/bin/pip install checkov
+
+ln -sf /opt/checkov-venv/bin/checkov /usr/local/bin/checkov
+
+chmod +x /usr/local/bin/checkov
+
+
 echo
 echo "======================================"
 echo "Installed versions"
@@ -66,6 +78,8 @@ terraform version
 az version | head
 ansible --version | head -n 1
 terraform-docs --version
+checkov --version
+
 
 apt-get clean
 rm -rf /var/lib/apt/lists/*
