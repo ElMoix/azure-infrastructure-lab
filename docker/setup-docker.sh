@@ -70,8 +70,6 @@ chmod +x /usr/local/bin/checkov
 
 echo "Installing TFLint..."
 curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
-mv tflint /usr/local/bin/
-
 
 echo
 echo "======================================"
