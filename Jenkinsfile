@@ -77,6 +77,7 @@ pipeline {
                         > jenkins.auto.tfvars
 
                         cat jenkins.auto.tfvars
+			terraform fmt jenkins.auto.tfvars
 		    """
                 }
             }
