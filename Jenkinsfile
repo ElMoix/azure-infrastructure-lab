@@ -7,9 +7,20 @@ pipeline {
         timestamps()
     }
 
+    parameters {
+        choice(
+            name: 'TERRAFORM_ENV',
+            choices: [
+                'dev',
+                'prod'
+            ],
+            description: 'Terraform environment to deploy'
+        )
+    }
+
+
     environment {
-        TERRAFORM_ENV = "dev"
-        TERRAFORM_PATH = "terraform/environments/${TERRAFORM_ENV}"
+        TERRAFORM_PATH = "terraform/environments/${params.TERRAFORM_ENV}"
     }
 
 
@@ -71,7 +82,7 @@ pipeline {
             steps {
                 input(
                     message: '¿Quieres aplicar los cambios de Terraform?',
-                    ok: 'Aplicar Terraform'
+                    ok: 'Execute Apply'
                 )
             }
         }
