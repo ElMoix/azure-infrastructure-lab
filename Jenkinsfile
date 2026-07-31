@@ -60,11 +60,13 @@ pipeline {
             steps {
                 dir("${TERRAFORM_PATH}") {
                     sh """
-                        cat > jenkins.auto.tfvars <<EOF
-                        deploy_vm  = ${params.DEPLOY_VM}
-                        deploy_sql = ${params.DEPLOY_SQL}
-                        EOF
-                    """
+                        printf 'deploy_vm = %s\\ndeploy_sql = %s\\n' \
+                        ${params.DEPLOY_VM} \
+                        ${params.DEPLOY_SQL} \
+                        > jenkins.auto.tfvars
+
+                        cat jenkins.auto.tfvars
+		    """
                 }
             }
         }
