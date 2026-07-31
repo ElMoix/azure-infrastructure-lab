@@ -188,10 +188,13 @@ http://localhost:8080
 Login with Jenkins credentials.
 
 Default credentials:
+
 Username: admin
+
 Password: admin
 
 Change this password before using this setup in a real environment.
+
 (docker/jenkins/casc/jenkins.yaml)
 
 ---
