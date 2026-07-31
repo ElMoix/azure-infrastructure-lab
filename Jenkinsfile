@@ -16,6 +16,16 @@ pipeline {
             ],
             description: 'Terraform environment to deploy'
         )
+        booleanParam(
+            name: 'DEPLOY_VM',
+            defaultValue: false,
+            description: 'Deploy Azure Virtual Machine'
+        )
+        booleanParam(
+            name: 'DEPLOY_SQL',
+            defaultValue: false,
+            description: 'Deploy Azure SQL Database'
+        )
     }
 
 
@@ -45,6 +55,19 @@ pipeline {
             }
         }
 
+
+        stage('Terraform Variables') {
+            steps {
+                dir("${TERRAFORM_PATH}") {
+                    sh """
+                        cat > jenkins.auto.tfvars <<EOF
+                        deploy_vm  = ${params.DEPLOY_VM}
+                        deploy_sql = ${params.DEPLOY_SQL}
+                        EOF
+                    """
+                }
+            }
+        }
 
         stage('Terraform Validate') {
             steps {
