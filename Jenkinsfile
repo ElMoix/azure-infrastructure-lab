@@ -39,7 +39,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git(
-                    branch: 'develop',
+                    branch: 'main',
                     url: 'https://github.com/ElMoix/azure-infrastructure-lab.git',
                     credentialsId: 'github-token'
                 )
