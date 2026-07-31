@@ -1,54 +1,128 @@
 pipeline {
 
     agent any
-
     options {
         ansiColor('xterm')
+        timestamps()
     }
 
     environment {
         TERRAFORM_ENV = "dev"
+        TERRAFORM_PATH = "terraform/environments/${TERRAFORM_ENV}"
     }
 
 
     stages {
-
         stage('Checkout') {
             steps {
                 git(
-                    url: 'https://github.com/ElMoix/azure-infrastructure-lab.git',
                     branch: 'develop',
-		    credentialsId: 'github-token'
+                    url: 'https://github.com/ElMoix/azure-infrastructure-lab.git',
+                    credentialsId: 'github-token'
                 )
+
+            }
+        }
+
+
+        stage('Terraform Version') {
+            steps {
+
+                sh '''
+                    terraform version
+                    az version
+                '''
+
             }
         }
 
 
         stage('Terraform Init') {
             steps {
-                dir('terraform/environments/dev') {
-                    sh 'terraform init'
+                dir("${TERRAFORM_PATH}") {
+
+                    withCredentials([
+                        azureServicePrincipal(
+                            credentialsId: 'azure-service-principal',
+                            subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID',
+                            clientIdVariable: 'ARM_CLIENT_ID',
+                            clientSecretVariable: 'ARM_CLIENT_SECRET',
+                            tenantIdVariable: 'ARM_TENANT_ID'
+                        )
+                    ]) {
+
+                        sh '''
+                            terraform init
+                        '''
+
+                    }
+
                 }
+
             }
         }
 
 
         stage('Terraform Validate') {
             steps {
-                dir('terraform/environments/dev') {
-                    sh 'terraform validate'
+                dir("${TERRAFORM_PATH}") {
+
+                    sh '''
+                        terraform validate
+                    '''
+
                 }
+
             }
         }
 
 
         stage('Terraform Plan') {
+
             steps {
-                dir('terraform/environments/dev') {
-                    sh 'terraform plan'
+
+                dir("${TERRAFORM_PATH}") {
+
+                    withCredentials([
+                        azureServicePrincipal(
+                            credentialsId: 'azure-service-principal',
+                            subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID',
+                            clientIdVariable: 'ARM_CLIENT_ID',
+                            clientSecretVariable: 'ARM_CLIENT_SECRET',
+                            tenantIdVariable: 'ARM_TENANT_ID'
+                        )
+                    ]) {
+
+                        sh '''
+                            terraform plan \
+                              -out=tfplan
+                        '''
+
+                    }
+
                 }
+
             }
         }
 
+
     }
+
+
+    post {
+        success {
+            echo "Terraform deployment completed successfully"
+        }
+
+        failure {
+            echo "Terraform deployment failed"
+        }
+
+
+        always {
+            cleanWs()
+        }
+
+    }
+
 }
