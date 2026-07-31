@@ -5,10 +5,11 @@
 Run the setup script:
 
 ```bash
-chmod +x scripts/setup.sh
-
 ./scripts/setup.sh
 ```
+
+Important: You will need to logout/login in order to be added to the "docker" group
+
 
 ## Prerequisites
 
@@ -141,15 +142,8 @@ AZURE_SUBSCRIPTION_ID=<subscription_id>
 
 ## 1. Build the Jenkins Docker image
 
-Navigate to the Docker directory:
-
 ```bash
 cd docker
-```
-
-Build the custom Jenkins image:
-
-```bash
 docker compose build
 ```
 
@@ -157,15 +151,8 @@ docker compose build
 
 ## 2. Start Jenkins container
 
-Start Jenkins:
-
 ```bash
 docker compose up -d
-```
-
-Verify:
-
-```bash
 docker ps
 ```
 
@@ -193,8 +180,7 @@ Username: admin
 Password: admin
 ```
 
-Change this password before using this setup in a real environment.
-
+Change the password.
 Configuration file:
 
 ```text
@@ -203,21 +189,27 @@ docker/jenkins/casc/jenkins.yaml
 
 ---
 
-# Rebuild Jenkins after changes
+## 4. Pipeline Jenkins
 
-If you modify:
+The project includes a Jenkins Pipeline that automates the deployment of the Terraform infrastructure.
 
-- Dockerfile
-- setup-docker.sh
-- plugins.txt
-- jenkins.yaml
+### Supported environments
 
-Run:
+- `dev`
+- `prod`
 
-```bash
-docker compose down
+### Pipeline workflow
 
-docker compose build --no-cache
+1. Initialize and validate the Terraform configuration.
+2. Run a Checkov security scan.
+3. Generate the Terraform execution plan.
+4. Wait for manual approval.
+5. Apply the infrastructure changes.
 
-docker compose up -d
-```
+### Deployment options
+
+Infrastructure components can be enabled or disabled through pipeline parameters, for example:
+
+- Azure Virtual Machine
+- Azure SQL Database
+

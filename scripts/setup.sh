@@ -63,7 +63,7 @@ echo -e "\n${BLUE}5. Installing Terraform${NC}"
 if command -v terraform >/dev/null 2>&1; then
     echo -e "${GREEN}Terraform is already installed, not installing it again.${NC}"
 else
-    wget -O- https://apt.releases.hashicorp.com/gpg \ | gpg --dearmor \ | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg >/dev/null
+    wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg >/dev/null
     echo \
     "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
     https://apt.releases.hashicorp.com \
