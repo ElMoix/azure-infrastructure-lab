@@ -1,0 +1,17 @@
+git
+workflow-aggregator
+github
+github-api
+pipeline-stage-view
+docker-workflow
+configuration-as-code
+blueocean
+credentials-binding
+azure-credentials
+ssh-agent
+ansicolor
+azure-sdk
+credentials
+plain-credentials
+structs
+jackson2-api

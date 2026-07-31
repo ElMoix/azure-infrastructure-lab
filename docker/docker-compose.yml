@@ -1,0 +1,34 @@
+services:
+  jenkins:
+    build:
+      context: ./
+      dockerfile: ./jenkins/Dockerfile
+
+    image: azure-lab-jenkins:latest    
+    container_name: azure-lab-jenkins
+
+    restart: unless-stopped
+
+    privileged: true
+
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+
+    environment:
+      CASC_JENKINS_CONFIG: /usr/share/jenkins/ref/casc_configs/jenkins.yaml
+      
+      GITHUB_USERNAME: ${GITHUB_USERNAME}
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+
+      AZURE_CLIENT_ID: ${AZURE_CLIENT_ID}
+      AZURE_CLIENT_SECRET: ${AZURE_CLIENT_SECRET}
+      AZURE_SUBSCRIPTION_ID: ${AZURE_SUBSCRIPTION_ID}
+      AZURE_TENANT_ID: ${AZURE_TENANT_ID}
+
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  jenkins_home:
