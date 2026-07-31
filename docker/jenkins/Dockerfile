@@ -18,7 +18,4 @@ RUN jenkins-plugin-cli \
     --plugin-file /usr/share/jenkins/ref/plugins.txt
 
 
-COPY jenkins/casc/jenkins.yaml /var/jenkins_home/jenkins.yaml
-
-
-ENV CASC_JENKINS_CONFIG=/var/jenkins_home/jenkins.yaml
+COPY jenkins/casc/jenkins.yaml /usr/share/jenkins/ref/casc_configs/jenkins.yaml

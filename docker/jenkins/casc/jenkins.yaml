@@ -19,3 +19,14 @@ unclassified:
 
   location:
     url: http://localhost:8080/
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - usernamePassword:
+              id: github-token
+              description: GitHub Personal Access Token
+              username: ${GITHUB_USERNAME}
+              password: ${GITHUB_TOKEN}
+              scope: GLOBAL

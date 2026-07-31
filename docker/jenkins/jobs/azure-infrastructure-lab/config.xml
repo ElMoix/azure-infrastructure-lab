@@ -15,7 +15,8 @@
 
       <userRemoteConfigs>
         <hudson.plugins.git.UserRemoteConfig>
-          <url>https://github.com/ElMoix/azure-infrastructure-lab.git</url>
+	  <url>https://github.com/ElMoix/azure-infrastructure-lab.git</url>
+	  <credentialsId>github-token</credentialsId>
         </hudson.plugins.git.UserRemoteConfig>
       </userRemoteConfigs>
 
