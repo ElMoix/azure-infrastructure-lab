@@ -24,8 +24,12 @@ pipeline {
 
         stage('Checkout') {
             steps {
-              git branch: 'develop', url: 'https://github.com/ElMoix/azure-infrastructure-lab.git', credentialsId: 'github-token'
-            }
+                git branch: 'develop', url: 'https://github.com/ElMoix/azure-infrastructure-lab.git', credentialsId: 'github-token'
+                
+	        script {
+                  currentBuild.displayName = "#${env.BUILD_NUMBER} ${params.TERRAFORM_ENV} - ${params.ACTION}"
+                }
+	    }
         }
 
 
@@ -84,11 +88,11 @@ pipeline {
 		    withCredentials([azureServicePrincipal(credentialsId: 'azure-service-principal', subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', clientIdVariable: 'ARM_CLIENT_ID', clientSecretVariable: 'ARM_CLIENT_SECRET', tenantIdVariable: 'ARM_TENANT_ID')]) {
 			script {
 			  echo """
-                            === Pipeline Configuration ===
-                            Action      : ${params.ACTION}
-                            Environment : ${params.TERRAFORM_ENV}
-                            Deploy VM   : ${params.DEPLOY_VM}
-                            Deploy SQL  : ${params.DEPLOY_SQL}
+=== Pipeline Configuration ===
+Action      : ${params.ACTION}
+Environment : ${params.TERRAFORM_ENV}
+Deploy VM   : ${params.DEPLOY_VM}
+Deploy SQL  : ${params.DEPLOY_SQL}
 
                           """
 
@@ -108,27 +112,34 @@ pipeline {
         }
 
 
-        stage('Terraform Approval') {
-            steps {
-                input(
-                    message: "Approve Terraform ${params.ACTION}?",
-                    ok: 'Continue'
-                )
-            }
-        }
+	stage('Terraform Approval') {
+    	  steps {
+        	script {
+            	  if (params.ACTION == 'deploy') {
+                	input message: 'Approve deployment?', ok: 'Deploy'
+            	  } else {
+                	def confirm = input(
+                    	  message: 'Type DESTROY to confirm',
+                    	  parameters: [string(name: 'CONFIRM')]
+   			)
+
+                	if (confirm != 'DESTROY') {
+                    	  error('Destroy cancelled.')
+                	}
+            	  }
+        	}
+    	  }
+	}
 
 
-        stage('Terraform Apply') {
-            steps {
-                dir("${TERRAFORM_PATH}") {
-            	   withCredentials([azureServicePrincipal(credentialsId: 'azure-service-principal', subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', clientIdVariable: 'ARM_CLIENT_ID', clientSecretVariable: 'ARM_CLIENT_SECRET', tenantIdVariable: 'ARM_TENANT_ID')])
-		    {
-                        sh '''
-                            terraform apply tfplan
-                        '''
-                    }
-                }
+	stage('Terraform Apply') {
+    	  steps {
+       	    dir(TERRAFORM_PATH) {
+            	withCredentials([azureServicePrincipal(credentialsId: 'azure-service-principal', subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', clientIdVariable: 'ARM_CLIENT_ID', clientSecretVariable: 'ARM_CLIENT_SECRET', tenantIdVariable: 'ARM_TENANT_ID')]) {
+                	script {
+                   	  sh 'terraform apply tfplan'
+                	}
+            	}
             }
-        }
-    }
-}
+    	  }
+	}
