@@ -5,55 +5,26 @@ pipeline {
     options {
         ansiColor('xterm')
         timestamps()
+    	buildDiscarder(logRotator(numToKeepStr: '20'))
+    	timeout(time: 60, unit: 'MINUTES')
     }
 
     parameters {
-	choice(
-    	name: 'ACTION',
-    	choices: [
-        	'deploy',
-        	'destroy'
-    	],
-    	description: 'Terraform action'
-	)
-        
-	choice(
-            name: 'TERRAFORM_ENV',
-            choices: [
-                'dev',
-                'prod'
-            ],
-            description: 'Terraform environment to deploy'
-        )
-
-        booleanParam(
-            name: 'DEPLOY_VM',
-            defaultValue: false,
-            description: 'Deploy Azure Virtual Machine'
-        )
-
-        booleanParam(
-            name: 'DEPLOY_SQL',
-            defaultValue: false,
-            description: 'Deploy Azure SQL Database'
-        )
+      choice(name: 'ACTION', choices: ['deploy', 'destroy'], description: 'Terraform action')
+      choice(name: 'TERRAFORM_ENV', choices: ['dev', 'prod'], description: 'Terraform environment')
+      booleanParam(name: 'DEPLOY_VM', defaultValue: false, description: 'Deploy Azure Virtual Machine')
+      booleanParam(name: 'DEPLOY_SQL', defaultValue: false, description: 'Deploy Azure SQL Database')
     }
-
 
     environment {
         TERRAFORM_PATH = "terraform/environments/${params.TERRAFORM_ENV}"
     }
 
-
     stages {
 
         stage('Checkout') {
             steps {
-                git(
-                    branch: 'develop',
-                    url: 'https://github.com/ElMoix/azure-infrastructure-lab.git',
-                    credentialsId: 'github-token'
-                )
+              git branch: 'develop', url: 'https://github.com/ElMoix/azure-infrastructure-lab.git', credentialsId: 'github-token'
             }
         }
 
@@ -110,17 +81,17 @@ pipeline {
         stage('Terraform Plan') {
             steps {
                 dir("${TERRAFORM_PATH}") {
-
-                    withCredentials([
-                        azureServicePrincipal(
-                            credentialsId: 'azure-service-principal',
-                            subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID',
-                            clientIdVariable: 'ARM_CLIENT_ID',
-                            clientSecretVariable: 'ARM_CLIENT_SECRET',
-                            tenantIdVariable: 'ARM_TENANT_ID'
-                        )
-                    ]) {
+		    withCredentials([azureServicePrincipal(credentialsId: 'azure-service-principal', subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', clientIdVariable: 'ARM_CLIENT_ID', clientSecretVariable: 'ARM_CLIENT_SECRET', tenantIdVariable: 'ARM_TENANT_ID')]) {
 			script {
+			  echo """
+                            === Pipeline Configuration ===
+                            Action      : ${params.ACTION}
+                            Environment : ${params.TERRAFORM_ENV}
+                            Deploy VM   : ${params.DEPLOY_VM}
+                            Deploy SQL  : ${params.DEPLOY_SQL}
+
+                          """
+
                             if (params.ACTION == "deploy") {
                                 sh '''
 				  terraform plan -out=tfplan
@@ -150,17 +121,8 @@ pipeline {
         stage('Terraform Apply') {
             steps {
                 dir("${TERRAFORM_PATH}") {
-
-                    withCredentials([
-                        azureServicePrincipal(
-                            credentialsId: 'azure-service-principal',
-                            subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID',
-                            clientIdVariable: 'ARM_CLIENT_ID',
-                            clientSecretVariable: 'ARM_CLIENT_SECRET',
-                            tenantIdVariable: 'ARM_TENANT_ID'
-                        )
-                    ]) {
-
+            	   withCredentials([azureServicePrincipal(credentialsId: 'azure-service-principal', subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', clientIdVariable: 'ARM_CLIENT_ID', clientSecretVariable: 'ARM_CLIENT_SECRET', tenantIdVariable: 'ARM_TENANT_ID')])
+		    {
                         sh '''
                             terraform apply tfplan
                         '''
