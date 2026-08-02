@@ -55,6 +55,16 @@ sudo apt install -y \
     openssh-client
 
 
+# Update branch in Jenkinsfile and config
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+REPO_NAME="$(basename "${REPO_ROOT}")"
+CURRENT_BRANCH="$(git branch --show-current)"
+CONFIG_FILE="${REPO_ROOT}/docker/jenkins/jobs/${REPO_NAME}/config.xml"
+JENKINSFILE="${REPO_ROOT}/Jenkinsfile"
+sed -i "s|<name>\\*/.*</name>|<name>*/${CURRENT_BRANCH}</name>|" "${CONFIG_FILE}"
+sed -i "s|branch: '[^']*'|branch: '${CURRENT_BRANCH}'|" "${JENKINSFILE}"
+
+
 echo -e "\n${BLUE}4. Installing Azure CLI${NC}"
 if command -v az >/dev/null 2>&1; then
     echo -e "${GREEN}Azure CLI is already installed, not installing it again.${NC}"
