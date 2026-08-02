@@ -14,46 +14,19 @@ Important: You will need to logout/login in order to be added to the "docker" gr
 ## Prerequisites
 
 Before starting Jenkins, create the required credentials.
+The './scripts/setup.sh' script will execute a './scripts/setup-accounts.sh' script in order to create the needed credentials.
 
 ---
 
-## GitHub Personal Access Token
+## GitHub fine-grained PAT
 
 Jenkins needs a GitHub token to clone the repository.
 
-### Create GitHub Token
-
-Go to:
-
 ```text
-GitHub
- -> Settings
- -> Developer settings
- -> Personal access tokens
- -> Tokens (classic)
- -> Generate new token
+https://github.com/settings/personal-access-tokens/new?name=Azure%20Infrastructure%20Lab&description=Token%20for%20Jenkins%20Pipeline&expires_in=30&contents=read
 ```
 
 Create the token and save it securely.
-
----
-
-### Configure GitHub credentials
-
-Create a file:
-
-```text
-docker/.env
-```
-
-Add:
-
-```env
-GITHUB_USERNAME=<github_username>
-GITHUB_TOKEN=<github_personal_access_token>
-```
-
-This file is loaded by Docker Compose and injected into Jenkins Configuration as Code.
 
 ---
 
@@ -61,25 +34,12 @@ This file is loaded by Docker Compose and injected into Jenkins Configuration as
 
 Terraform uses an Azure Service Principal to authenticate with Azure.
 
-### Login into Azure
-
+### Create Service Principal
 ```bash
 az login
-```
 
-Check the active subscription:
-
-```bash
 az account show
-```
 
----
-
-### Create Service Principal
-
-Create the Service Principal:
-
-```bash
 az ad sp create-for-rbac \
   --name azure-infrastructure-lab \
   --role Contributor \
@@ -107,24 +67,15 @@ subscriptionId -> Azure subscription ID
 
 ---
 
-### Add Azure credentials to Docker environment
+### Add the credentials to Docker environment
 
-Update:
+Create:
 
 ```text
 docker/.env
 ```
 
 Add:
-
-```env
-AZURE_CLIENT_ID=<client_id>
-AZURE_CLIENT_SECRET=<client_secret>
-AZURE_TENANT_ID=<tenant_id>
-AZURE_SUBSCRIPTION_ID=<subscription_id>
-```
-
-The complete file:
 
 ```env
 GITHUB_USERNAME=<github_username>
