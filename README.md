@@ -11,75 +11,37 @@ Run the setup script:
 Important: You will need to logout/login in order to be added to the "docker" group
 
 
-## Prerequisites
+### Prerequisites
 
-Before starting Jenkins, create the required credentials.
+Before starting the service, create the required credentials.
+The './scripts/setup.sh' script will execute a './scripts/setup-accounts.sh' script in order to create the needed credentials.
 
 ---
 
-## GitHub Personal Access Token
+### GitHub fine-grained PAT
 
+Already executed with './scripts/setup-accounts.sh'.
 Jenkins needs a GitHub token to clone the repository.
 
-### Create GitHub Token
-
-Go to:
-
 ```text
-GitHub
- -> Settings
- -> Developer settings
- -> Personal access tokens
- -> Tokens (classic)
- -> Generate new token
+https://github.com/settings/personal-access-tokens/new?name=Azure%20Infrastructure%20Lab&description=Token%20for%20Jenkins%20Pipeline&expires_in=30&contents=read
 ```
 
 Create the token and save it securely.
 
 ---
 
-### Configure GitHub credentials
+### Azure Service Principal
 
-Create a file:
-
-```text
-docker/.env
-```
-
-Add:
-
-```env
-GITHUB_USERNAME=<github_username>
-GITHUB_TOKEN=<github_personal_access_token>
-```
-
-This file is loaded by Docker Compose and injected into Jenkins Configuration as Code.
-
----
-
-## Azure Service Principal
-
+Already executed with './scripts/setup-accounts.sh'.
 Terraform uses an Azure Service Principal to authenticate with Azure.
 
-### Login into Azure
-
+### Create Service Principal
 ```bash
 az login
-```
 
-Check the active subscription:
-
-```bash
 az account show
-```
 
----
-
-### Create Service Principal
-
-Create the Service Principal:
-
-```bash
 az ad sp create-for-rbac \
   --name azure-infrastructure-lab \
   --role Contributor \
@@ -107,24 +69,15 @@ subscriptionId -> Azure subscription ID
 
 ---
 
-### Add Azure credentials to Docker environment
+## 2. Add the credentials to Docker environment
 
-Update:
+Create:
 
 ```text
 docker/.env
 ```
 
 Add:
-
-```env
-AZURE_CLIENT_ID=<client_id>
-AZURE_CLIENT_SECRET=<client_secret>
-AZURE_TENANT_ID=<tenant_id>
-AZURE_SUBSCRIPTION_ID=<subscription_id>
-```
-
-The complete file:
 
 ```env
 GITHUB_USERNAME=<github_username>
@@ -134,57 +87,35 @@ AZURE_CLIENT_ID=<client_id>
 AZURE_CLIENT_SECRET=<client_secret>
 AZURE_TENANT_ID=<tenant_id>
 AZURE_SUBSCRIPTION_ID=<subscription_id>
+
+VAULT_ADMIN_USER=<vault_user>
+VAULT_ADMIN_PASSWORD=<vault_pass>
 ```
 
 ---
 
-# Jenkins Setup with Docker
+## 3. Start and Setup the services with Docker
 
-## 1. Build the Jenkins Docker image
+Will build an image for Jenkins and Vault and do the initial setup.
 
 ```bash
 cd docker
-docker compose build
+./docker-start.sh
 ```
 
----
-
-## 2. Start Jenkins container
-
-```bash
-docker compose up -d
-docker ps
-```
-
-Expected container:
-
-```text
-azure-lab-jenkins
-```
-
----
-
-## 3. Access Jenkins
+### 3.1 Access the web services
 
 Open:
 
 ```text
-http://localhost:8080
+Jenkins: http://localhost:8080
+Vault:   http://localhost:8200/
 ```
 
-Login with Jenkins credentials.
-Default credentials:
-
+- For Jenkins and Vault, use the default credentials:
 ```text
 Username: admin
 Password: admin
-```
-
-Change the password.
-Configuration file:
-
-```text
-docker/jenkins/casc/jenkins.yaml
 ```
 
 ---
@@ -192,6 +123,7 @@ docker/jenkins/casc/jenkins.yaml
 ## 4. Pipeline Jenkins
 
 The project includes a Jenkins Pipeline that automates the deployment of the Terraform infrastructure.
+It uses Hashicorp Vault to store passwords and certificates.
 
 ### Supported environments
 
@@ -213,3 +145,33 @@ Infrastructure components can be enabled or disabled through pipeline parameters
 - Azure Virtual Machine
 - Azure SQL Database
 
+
+---
+# TREE SCHEMA
+
+```bash
+.
+├── ansible
+├── docker
+│   ├── jenkins
+│   │   ├── casc
+│   │   └── jobs
+│   └── vault
+│       ├── config
+│       ├── init
+│       ├── logs
+│       └── secrets
+├── scripts
+└── terraform
+    ├── environments
+    │   ├── dev
+    │   └── prod
+    └── modules
+        ├── nsg
+        ├── nsg_rule
+        ├── resource_group
+        ├── sql_database
+        ├── subnet
+        ├── virtual_network
+        └── vm
+```

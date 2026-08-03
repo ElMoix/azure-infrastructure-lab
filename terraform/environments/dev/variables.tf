@@ -1,38 +1,21 @@
-variable "subscription_id" {
-  type = string
+variable "virtual_networks" {
+  type = map(object({
+    address_space = list(string)
+  }))
+  default = {}
 }
 
-variable "project_name" {
-  type = string
+variable "subnets" {
+  type = map(object({
+    virtual_network = string
+    address_prefix = string
+  }))
+  default = {}
 }
 
-variable "location" {
-  type = string
-}
-
-variable "sql_server_name" {
-  type = string
-}
-
-variable "sql_database_name" {
-  type = string
-}
-
-variable "sql_admin_login" {
-  type = string
-}
-
-variable "sql_admin_password" {
-  type      = string
-  sensitive = true
-}
-
-variable "deploy_vm" {
-  type    = bool
-  default = false
-}
-
-variable "deploy_sql" {
-  type    = bool
-  default = false
+variable "nsgs" {
+  type = map(object({
+    subnet = string
+  }))
+  default = {}
 }

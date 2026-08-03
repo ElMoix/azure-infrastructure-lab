@@ -6,3 +6,17 @@ variable "common" {
     tags = map(string)
   })
 }
+
+variable "name" {
+  type = string
+}
+
+variable "subnet_id" {
+  type = string
+}
+
+variable "config" {
+  type = object({
+    subnet = string
+  })
+}

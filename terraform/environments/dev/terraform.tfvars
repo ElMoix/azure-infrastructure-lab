@@ -9,3 +9,49 @@ sql_admin_password = "$uper$ecurePass@98"
 
 deploy_vm  = false
 deploy_sql = false
+
+
+virtual_networks = {
+  hub = {
+    address_space = [
+      "10.0.0.0/16"
+    ]
+  }
+
+  spoke = {
+    address_space = [
+      "10.1.0.0/16"
+    ]
+  }
+}
+
+subnets = {
+  frontend = {
+    virtual_network = "hub"
+    address_prefix = "10.0.1.0/24"
+  }
+
+  backend = {
+    virtual_network = "hub"
+    address_prefix = "10.0.2.0/24"
+  }
+
+  database = {
+    virtual_network = "spoke"
+    address_prefix = "10.1.1.0/24"
+  }
+}
+
+nsgs = {
+  frontend = {
+    subnet = "frontend"
+  }
+
+  backend = {
+    subnet = "backend"
+  }
+
+  database = {
+    subnet = "database"
+  }
+}

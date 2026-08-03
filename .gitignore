@@ -23,3 +23,14 @@
 Thumbs.db
 
 docker/.env
+docker/vault/data/*
+!docker/vault/data/.gitkeep
+
+docker/vault/logs/*
+!docker/vault/logs/.gitkeep
+
+docker/vault/init/*.keys
+docker/vault/init/*.token
+
+docker/vault/secrets/*
+!docker/vault/secrets/.gitkeep

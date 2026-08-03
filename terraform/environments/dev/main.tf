@@ -1,35 +1,37 @@
 module "resource_group" {
   source       = "../../modules/resource_group"
-  project_name = var.project_name
-  location     = var.location
+  common = local.common  
 }
 
-module "networking" {
-  source              = "../../modules/networking"
-  resource_group_name = module.resource_group.resource_group_name
-  project_name        = var.project_name
-  location            = var.location
+module "virtual_network" {
+  source = "../../modules/virtual_network"
+  for_each = var.virtual_networks
+
+  common = local.common
+  config = each.value
+  name = each.key
 }
 
-module "virtual_machine" {
-  count = var.deploy_vm ? 1 : 0
+module "subnet" {
+  source = "../../modules/subnet"
+  for_each = var.subnets
 
-  source              = "../../modules/virtual_machine"
-  resource_group_name = module.resource_group.resource_group_name
-  project_name        = var.project_name
-  location            = var.location
-  subnet_id           = module.networking.subnet_id
+  common = local.common
+  name = each.key
+  virtual_network_name = module.virtual_network[
+    each.value.virtual_network
+  ].name
+  config = each.value
 }
 
-module "sql_database" {
-  count = var.deploy_sql ? 1 : 0
-
-  source              = "../../modules/sql_database"
-  resource_group_name = module.resource_group.resource_group_name
-  project_name        = var.project_name
-  location            = var.location
-  sql_server_name     = var.sql_server_name
-  sql_database_name   = var.sql_database_name
-  admin_login         = var.sql_admin_login
-  admin_password      = var.sql_admin_password
+module "nsg" {
+  source = "../../modules/nsg"
+  for_each = var.nsgs
+  
+  common = local.common
+  name = each.key
+  subnet_id = module.subnet[
+    each.value.subnet
+  ].id
+  config = each.value
 }

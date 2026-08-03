@@ -4,18 +4,18 @@ USER root
 
 WORKDIR /tmp
 
-COPY setup-docker.sh .
+COPY setup-jenkins.sh .
 
-RUN chmod +x setup-docker.sh && \
-    ./setup-docker.sh
+RUN chmod +x setup-jenkins.sh && \
+    ./setup-jenkins.sh
 
 USER jenkins
 
-COPY jenkins/plugins.txt /usr/share/jenkins/ref/plugins.txt
-COPY jenkins/jobs /usr/share/jenkins/ref/jobs
+COPY ./plugins.txt /usr/share/jenkins/ref/plugins.txt
+COPY ./jobs /usr/share/jenkins/ref/jobs
 
 RUN jenkins-plugin-cli \
     --plugin-file /usr/share/jenkins/ref/plugins.txt
 
 
-COPY jenkins/casc/jenkins.yaml /usr/share/jenkins/ref/casc_configs/jenkins.yaml
+COPY ./casc/jenkins.yaml /usr/share/jenkins/ref/casc_configs/jenkins.yaml

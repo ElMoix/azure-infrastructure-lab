@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SECRETS_DIR="$(cd "$(dirname "$0")"/.. && pwd)/secrets"
+mkdir -p "$SECRETS_DIR"
+
+###########
+vault_status() {
+    docker exec "$VAULT_CONTAINER" vault status 2>/dev/null || {
+        local exit_code=$?
+
+        if [ "$exit_code" -ne 2 ]; then
+            return "$exit_code"
+        fi
+    }
+}
+
+
+###########
+STATUS=$(vault_status)
+INITIALIZED=$(echo "$STATUS" | awk '/Initialized/ {print $2}')
+if [ "$INITIALIZED" = "false" ]; then
+    echo -e "${GREEN}Initializing Vault${NC}"
+
+    INIT_OUTPUT=$(docker exec "$VAULT_CONTAINER" \
+        vault operator init \
+        -key-shares=3 \
+        -key-threshold=2)
+
+    echo "$INIT_OUTPUT"
+    echo "$INIT_OUTPUT" | awk '/Unseal Key 1:/ {print $4}' > "$SECRETS_DIR/unseal-key-1"
+    echo "$INIT_OUTPUT" | awk '/Unseal Key 2:/ {print $4}' > "$SECRETS_DIR/unseal-key-2"
+    echo "$INIT_OUTPUT" | awk '/Unseal Key 3:/ {print $4}' > "$SECRETS_DIR/unseal-key-3"
+    echo "$INIT_OUTPUT" | awk '/Initial Root Token:/ {print $4}' > "$SECRETS_DIR/root-token"
+    echo -e "\n${GREEN}[INFO] Secrets saved at ${SECRETS_DIR}${NC}"
+else
+    echo -e "${YELLOW}Vault already initialized${NC}"
+
+    if [ ! -f "$SECRETS_DIR/unseal-key-1" ]; then
+        echo -e "${RED}[ERROR] Vault is initialized but unseal keys are missing${NC}"
+	echo "Restore vault/secrets or remove the Vault data volume (docker compose down -v)"
+        exit 1
+    fi
+fi
+
+
+###########
+SEALED=$(echo "$STATUS" | awk '/Sealed/ {print $2}')
+if [ "$SEALED" = "true" ]; then
+    echo -e "\n${GREEN}Unsealing Vault${NC}"
+    docker exec "$VAULT_CONTAINER" \
+        vault operator unseal "$(cat "$SECRETS_DIR/unseal-key-1")"
+
+    docker exec "$VAULT_CONTAINER" \
+        vault operator unseal "$(cat "$SECRETS_DIR/unseal-key-2")"
+else
+    echo -e "${YELLOW}Vault already unsealed${NC}"
+fi
+
+
+###########
+ROOT_TOKEN=$(cat "$SECRETS_DIR/root-token")
+docker exec -e VAULT_TOKEN="$ROOT_TOKEN" "$VAULT_CONTAINER" vault token lookup >/dev/null
+
+if ! docker exec -e VAULT_TOKEN="$ROOT_TOKEN" "$VAULT_CONTAINER" vault auth list | grep -q "userpass/"; then
+    echo -e "${GREEN}Configuring Vault Auth${NC}"
+    docker exec -e VAULT_TOKEN="$ROOT_TOKEN" "$VAULT_CONTAINER" vault auth enable userpass
+fi
+
+if ! docker exec -e VAULT_TOKEN="$ROOT_TOKEN" "$VAULT_CONTAINER" vault policy list | grep -q "^admin$"; then
+    echo -e "${GREEN}Creating admin policy${NC}"
+    docker cp ./vault/init/admin-policy.hcl "$VAULT_CONTAINER:/tmp/admin-policy.hcl"
+    docker exec -e VAULT_TOKEN="$ROOT_TOKEN" "$VAULT_CONTAINER" vault policy write admin /tmp/admin-policy.hcl
+fi
+
+if ! docker exec -e VAULT_TOKEN="$ROOT_TOKEN" "$VAULT_CONTAINER" vault list auth/userpass/users | grep -q "^${VAULT_ADMIN_USER}$"; then
+    echo -e "${GREEN}Creating admin user${NC}"
+    docker exec -e VAULT_TOKEN="$ROOT_TOKEN" "$VAULT_CONTAINER" vault write auth/userpass/users/"${VAULT_ADMIN_USER}" password=${VAULT_ADMIN_PASSWORD} policies=admin
+else
+    echo -e "${YELLOW}Admin user already exists${NC}"
+fi
+

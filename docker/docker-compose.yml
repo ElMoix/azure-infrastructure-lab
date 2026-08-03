@@ -1,8 +1,9 @@
 services:
+  # === JENKINS ===
   jenkins:
     build:
-      context: ./
-      dockerfile: ./jenkins/Dockerfile
+      context: ./jenkins/
+      dockerfile: ./Dockerfile
 
     image: azure-lab-jenkins:latest    
     container_name: azure-lab-jenkins
@@ -25,10 +26,51 @@ services:
       AZURE_CLIENT_SECRET: ${AZURE_CLIENT_SECRET}
       AZURE_SUBSCRIPTION_ID: ${AZURE_SUBSCRIPTION_ID}
       AZURE_TENANT_ID: ${AZURE_TENANT_ID}
+      
+      VAULT_ADDR: http://vault:8200
 
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
 
+    depends_on:
+      - vault
+
+    networks:
+      - azure-lab
+
+  # === VAULT === 
+  vault:
+    build:
+      context: ./vault/
+      dockerfile: ./Dockerfile
+
+    image: azure-lab-vault:latest
+    container_name: azure-lab-vault
+
+    restart: unless-stopped
+
+    cap_add:
+      - IPC_LOCK
+
+    ports:
+      - "8200:8200"
+
+    environment:
+      VAULT_ADDR: http://127.0.0.1:8200
+
+    command: vault server -config=/vault/config/vault.hcl
+
+    volumes:
+      - ./vault/config:/vault/config:ro
+      - vault_data:/vault/data
+      - ./vault/logs:/vault/logs
+      - ./vault/init:/vault/init
+
 volumes:
   jenkins_home:
+  vault_data:
+
+networks:
+  azure-lab:
+    driver: bridge
