@@ -166,7 +166,7 @@ Infrastructure components can be enabled or disabled through pipeline parameters
 
 
 ---
-# TREE SCEMA
+# TREE SCHEMA
 
 ```bash
 .
