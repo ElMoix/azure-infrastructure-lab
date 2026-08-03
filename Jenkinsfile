@@ -24,7 +24,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git branch: 'develop', url: 'https://github.com/ElMoix/azure-infrastructure-lab.git', credentialsId: 'github-token'
+                git branch: 'main', url: 'https://github.com/ElMoix/azure-infrastructure-lab.git', credentialsId: 'github-token'
                 
 	        script {
                   currentBuild.displayName = "#${env.BUILD_NUMBER} ${params.TERRAFORM_ENV} - ${params.ACTION}"
