@@ -164,3 +164,33 @@ Infrastructure components can be enabled or disabled through pipeline parameters
 - Azure Virtual Machine
 - Azure SQL Database
 
+
+---
+# TREE SCEMA
+
+```bash
+.
+├── ansible
+├── docker
+│   ├── jenkins
+│   │   ├── casc
+│   │   └── jobs
+│   └── vault
+│       ├── config
+│       ├── init
+│       ├── logs
+│       └── secrets
+├── scripts
+└── terraform
+    ├── environments
+    │   ├── dev
+    │   └── prod
+    └── modules
+        ├── nsg
+        ├── nsg_rule
+        ├── resource_group
+        ├── sql_database
+        ├── subnet
+        ├── virtual_network
+        └── vm
+```
