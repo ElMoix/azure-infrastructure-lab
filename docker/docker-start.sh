@@ -107,9 +107,12 @@ echo -e "${GREEN}Vault is up${NC}"
 docker exec "${VAULT_CONTAINER}" vault version
 
 echo -e "\n${BLUE}5.1 Initializing Vault Setup${NC}"
-if [ -f ".env" ]; then
-    export $(grep -v '^#' .env | xargs)
-fi
+set -a
+source .env
+set +a
+
+: "${VAULT_ADMIN_USER:?VAULT_ADMIN_USER is not defined in .env}"
+: "${VAULT_ADMIN_PASSWORD:?VAULT_ADMIN_PASSWORD is not defined in .env}"
 ./vault/init/init.sh
 
 echo -e "\n${BLUE}6. Show running containers${NC}"

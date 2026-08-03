@@ -61,7 +61,7 @@ fi
 
 ###########
 ROOT_TOKEN=$(cat "$SECRETS_DIR/root-token")
-docker exec -e VAULT_TOKEN="$ROOT_TOKEN" "$VAULT_CONTAINER" vault token lookup
+docker exec -e VAULT_TOKEN="$ROOT_TOKEN" "$VAULT_CONTAINER" vault token lookup >/dev/null
 
 if ! docker exec -e VAULT_TOKEN="$ROOT_TOKEN" "$VAULT_CONTAINER" vault auth list | grep -q "userpass/"; then
     echo -e "${GREEN}Configuring Vault Auth${NC}"
