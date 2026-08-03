@@ -109,21 +109,10 @@ Jenkins: http://localhost:8080
 Vault:   http://localhost:8200/
 ```
 
-- For Jenkins, use the default credentials:
+- For Jenkins and Vault, use the default credentials:
 ```text
 Username: admin
 Password: admin
-```
-Change the password.
-Configuration file:
-```text
-docker/jenkins/casc/jenkins.yaml
-```
-
-- For Vault:
-Check the content on:
-```text
-docker/vault/secrets/root-token
 ```
 
 ---
