@@ -22,7 +22,7 @@
 
       <branches>
         <hudson.plugins.git.BranchSpec>
-          <name>*/main</name>
+          <name>*/develop</name>
         </hudson.plugins.git.BranchSpec>
       </branches>
 
