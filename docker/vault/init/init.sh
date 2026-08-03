@@ -16,6 +16,7 @@ vault_status() {
     }
 }
 
+
 ###########
 STATUS=$(vault_status)
 INITIALIZED=$(echo "$STATUS" | awk '/Initialized/ {print $2}')
@@ -43,6 +44,7 @@ else
     fi
 fi
 
+
 ###########
 SEALED=$(echo "$STATUS" | awk '/Sealed/ {print $2}')
 if [ "$SEALED" = "true" ]; then
@@ -55,3 +57,27 @@ if [ "$SEALED" = "true" ]; then
 else
     echo -e "${YELLOW}Vault already unsealed${NC}"
 fi
+
+
+###########
+ROOT_TOKEN=$(cat "$SECRETS_DIR/root-token")
+docker exec -e VAULT_TOKEN="$ROOT_TOKEN" "$VAULT_CONTAINER" vault token lookup
+
+if ! docker exec -e VAULT_TOKEN="$ROOT_TOKEN" "$VAULT_CONTAINER" vault auth list | grep -q "userpass/"; then
+    echo -e "${GREEN}Configuring Vault Auth${NC}"
+    docker exec -e VAULT_TOKEN="$ROOT_TOKEN" "$VAULT_CONTAINER" vault auth enable userpass
+fi
+
+if ! docker exec -e VAULT_TOKEN="$ROOT_TOKEN" "$VAULT_CONTAINER" vault policy list | grep -q "^admin$"; then
+    echo -e "${GREEN}Creating admin policy${NC}"
+    docker cp ./vault/init/admin-policy.hcl "$VAULT_CONTAINER:/tmp/admin-policy.hcl"
+    docker exec -e VAULT_TOKEN="$ROOT_TOKEN" "$VAULT_CONTAINER" vault policy write admin /tmp/admin-policy.hcl
+fi
+
+if ! docker exec -e VAULT_TOKEN="$ROOT_TOKEN" "$VAULT_CONTAINER" vault list auth/userpass/users | grep -q "^${VAULT_ADMIN_USER}$"; then
+    echo -e "${GREEN}Creating admin user${NC}"
+    docker exec -e VAULT_TOKEN="$ROOT_TOKEN" "$VAULT_CONTAINER" vault write auth/userpass/users/"${VAULT_ADMIN_USER}" password=${VAULT_ADMIN_PASSWORD} policies=admin
+else
+    echo -e "${YELLOW}Admin user already exists${NC}"
+fi
+

@@ -107,6 +107,9 @@ echo -e "${GREEN}Vault is up${NC}"
 docker exec "${VAULT_CONTAINER}" vault version
 
 echo -e "\n${BLUE}5.1 Initializing Vault Setup${NC}"
+if [ -f ".env" ]; then
+    export $(grep -v '^#' .env | xargs)
+fi
 ./vault/init/init.sh
 
 echo -e "\n${BLUE}6. Show running containers${NC}"
