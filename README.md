@@ -11,15 +11,16 @@ Run the setup script:
 Important: You will need to logout/login in order to be added to the "docker" group
 
 
-## Prerequisites
+### Prerequisites
 
-Before starting Jenkins, create the required credentials.
+Before starting the service, create the required credentials.
 The './scripts/setup.sh' script will execute a './scripts/setup-accounts.sh' script in order to create the needed credentials.
 
 ---
 
-## GitHub fine-grained PAT
+### GitHub fine-grained PAT
 
+Already executed with './scripts/setup-accounts.sh'.
 Jenkins needs a GitHub token to clone the repository.
 
 ```text
@@ -30,8 +31,9 @@ Create the token and save it securely.
 
 ---
 
-## Azure Service Principal
+### Azure Service Principal
 
+Already executed with './scripts/setup-accounts.sh'.
 Terraform uses an Azure Service Principal to authenticate with Azure.
 
 ### Create Service Principal
@@ -67,7 +69,7 @@ subscriptionId -> Azure subscription ID
 
 ---
 
-### Add the credentials to Docker environment
+## 2. Add the credentials to Docker environment
 
 Create:
 
@@ -89,53 +91,39 @@ AZURE_SUBSCRIPTION_ID=<subscription_id>
 
 ---
 
-# Jenkins Setup with Docker
+## 3. Start and Setup the services with Docker
 
-## 1. Build the Jenkins Docker image
+Will build an image for Jenkins and Vault and do the initial setup.
 
 ```bash
 cd docker
-docker compose build
+./docker-start.sh
 ```
 
----
-
-## 2. Start Jenkins container
-
-```bash
-docker compose up -d
-docker ps
-```
-
-Expected container:
-
-```text
-azure-lab-jenkins
-```
-
----
-
-## 3. Access Jenkins
+### 3.1 Access the web services
 
 Open:
 
 ```text
-http://localhost:8080
+Jenkins: http://localhost:8080
+Vault:   http://localhost:8200/
 ```
 
-Login with Jenkins credentials.
-Default credentials:
-
+- For Jenkins, use the default credentials:
 ```text
 Username: admin
 Password: admin
 ```
-
 Change the password.
 Configuration file:
-
 ```text
 docker/jenkins/casc/jenkins.yaml
+```
+
+- For Vault:
+Check the content on:
+```text
+docker/vault/secrets/root-token
 ```
 
 ---
@@ -143,6 +131,7 @@ docker/jenkins/casc/jenkins.yaml
 ## 4. Pipeline Jenkins
 
 The project includes a Jenkins Pipeline that automates the deployment of the Terraform infrastructure.
+It uses Hashicorp Vault to store passwords and certificates.
 
 ### Supported environments
 

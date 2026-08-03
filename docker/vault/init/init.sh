@@ -46,7 +46,7 @@ fi
 ###########
 SEALED=$(echo "$STATUS" | awk '/Sealed/ {print $2}')
 if [ "$SEALED" = "true" ]; then
-    echo -e "${GREEN}Unsealing Vault${NC}"
+    echo -e "\n${GREEN}Unsealing Vault${NC}"
     docker exec "$VAULT_CONTAINER" \
         vault operator unseal "$(cat "$SECRETS_DIR/unseal-key-1")"
 

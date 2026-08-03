@@ -109,7 +109,7 @@ docker exec "${VAULT_CONTAINER}" vault version
 echo -e "\n${BLUE}5.1 Initializing Vault Setup${NC}"
 ./vault/init/init.sh
 
-echo -e "\n${YELLOW}6. Show running containers${NC}"
+echo -e "\n${BLUE}6. Show running containers${NC}"
 docker compose ps
 
 echo -e "\n${GREEN}✓ Jenkins : ${JENKINS_URL}"
