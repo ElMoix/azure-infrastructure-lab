@@ -87,6 +87,9 @@ AZURE_CLIENT_ID=<client_id>
 AZURE_CLIENT_SECRET=<client_secret>
 AZURE_TENANT_ID=<tenant_id>
 AZURE_SUBSCRIPTION_ID=<subscription_id>
+
+VAULT_ADMIN_USER=<vault_user>
+VAULT_ADMIN_PASSWORD=<vault_pass>
 ```
 
 ---
